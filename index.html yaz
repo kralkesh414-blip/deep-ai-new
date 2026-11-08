@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#090914">
+  <title>DEEP AI | Yapay Zekâ Asistanları</title>
+
+  <style>
+    :root {
+      --bg: #090914;
+      --panel: #101020;
+      --panel-light: #17172b;
+      --border: rgba(255,255,255,0.08);
+      --text: #f4f3ff;
+      --muted: #9292ad;
+      --purple: #925cff;
+      --blue: #4d8dff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    button, textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app {
+      display: flex;
+      height: 100vh;
+      width: 100%;
+    }
+
+    /* SOL MENÜ */
+
+    .sidebar {
+      width: 270px;
+      min-width: 270px;
+      background: #0d0d1b;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 22px 15px;
+      z-index: 10;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 4px 8px 25px;
+    }
+
+    .logo-icon {
+      width: 39px;
+      height: 39px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #9c5cff, #397cff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 21px;
+      font-weight: bold;
+      box-shadow: 0 0 25px rgba(146,92,255,0.3);
+    }
+
+    .logo-name {
+      font-size: 21px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    .logo-name span {
+      color: #a77aff;
+    }
+
+    .new-chat {
+      width: 100%;
+      border: 1px solid rgba(146,92,255,0.35);
+      background: linear-gradient(
+        110deg,
+        rgba(146,92,255,0.18),
+        rgba(77,141,255,0.12)
+      );
+      color: white;
+      padding: 13px;
+      border-radius: 12px;
+      text-align: left;
+      font-size: 14px;
+      margin-bottom: 25px;
+    }
+
+    .new-chat:hover {
+      background: rgba(146,92,255,0.25);
+    }
+
+    .menu-title {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 1.5px;
+      padding: 0 10px 12px;
+    }
+
+    .character-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .character {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 11px 10px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: #c8c7dc;
+      text-align: left;
+      width: 100%;
+      transition: 0.2s;
+    }
+
+    .character:hover {
+      background: rgba(255,255,255,0.05);
+    }
+
+    .character.active {
+      background: rgba(146,92,255,0.14);
+      border-color: rgba(146,92,255,0.25);
+      color: white;
+    }
+
+    .character-emoji {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      background: var(--panel-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      flex-shrink: 0;
+    }
+
+    .character-info {
+      min-width: 0;
+    }
+
+    .character-name {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .character-desc {
+      color: var(--muted);
+      font-size: 10px;
+      margin-top: 4px;
+    }
+
+    .sidebar-footer {
+      border-top: 1px solid var(--border);
+      padding: 16px 8px 0;
+      color: var(--muted);
+      font-size: 11px;
+      text-align: center;
+    }
+
+    /* ANA EKRAN */
+
+    .main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .topbar {
+      height: 67px;
+      min-height: 67px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 25px;
+      background: rgba(13,13,27,0.7);
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .topbar h2 {
+      font-size: 15px;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: #72dba2;
+      font-size: 11px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      background: #55d995;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #55d995;
+    }
+
+    .mobile-menu {
+      display: none;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 23px;
+    }
+
+    /* SOHBET ALANI */
+
+    .chat-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 35px 20px;
+      scroll-behavior: smooth;
+    }
+
+    .chat-content {
+      max-width: 850px;
+      margin: 0 auto;
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .welcome {
+      margin: auto;
+      text-align: center;
+      padding: 35px 10px;
+      max-width: 600px;
+    }
+
+    .welcome-icon {
+      width: 76px;
+      height: 76px;
+      margin: 0 auto 22px;
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      background: linear-gradient(135deg, #925cff, #397cff);
+      box-shadow: 0 0 55px rgba(146,92,255,0.25);
+    }
+
+    .welcome h1 {
+      font-size: clamp(27px, 5vw, 39px);
+      margin-bottom: 13px;
+      letter-spacing: -1px;
+    }
+
+    .welcome h1 span {
+      background: linear-gradient(90deg, #b58aff, #5ca9ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .welcome p {
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .suggestions {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 28px;
+    }
+
+    .suggestion {
+      padding: 14px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.025);
+      border-radius: 12px;
+      color: #d8d6ed;
+      text-align: left;
+      font-size: 12px;
+      transition: 0.2s;
+    }
+
+    .suggestion:hover {
+      border-color: rgba(146,92,255,0.5);
+      background: rgba(146,92,255,0.08);
+    }
+
+    /* MESAJLAR */
+
+    .message {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 25px;
+      align-items: flex-start;
+    }
+
+    .message.user {
+      flex-direction: row-reverse;
+    }
+
+    .avatar {
+      width: 34px;
+      height: 34px;
+      min-width: 34px;
+      border-radius: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #925cff, #397cff);
+      font-size: 17px;
+    }
+
+    .message.user .avatar {
+      background: #292941;
+    }
+
+    .message-body {
+      max-width: 82%;
+      min-width: 0;
+    }
+
+    .message-name {
+      font-size: 11px;
+      color: #a98aff;
+      margin-bottom: 7px;
+      font-weight: bold;
+    }
+
+    .message.user .message-name {
+      color: #a6baff;
+      text-align: right;
+    }
+
+    .message-text {
+      color: #e5e4f1;
+      background: #171729;
+      border: 1px solid var(--border);
+      border-radius: 4px 13px 13px 13px;
+      padding: 13px 15px;
+      font-size: 14px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .message.user .message-text {
+      background: rgba(108,91,190,0.2);
+      border-radius: 13px 4px 13px 13px;
+    }
+
+    .typing {
+      color: var(--muted);
+      font-size: 12px;
+      padding: 10px 0;
+    }
+
+    /* MESAJ GİRİŞİ */
+
+    .input-section {
+      padding: 15px 20px 22px;
+      background: linear-gradient(transparent, #090914 25%);
+    }
+
+    .input-box {
+      max-width: 850px;
+      margin: 0 auto;
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      background: #171729;
+      border: 1px solid rgba(146,92,255,0.25);
+      border-radius: 16px;
+      padding: 10px 12px;
+      transition: 0.2s;
+    }
+
+    .input-box:focus-within {
+      border-color: #925cff;
+      box-shadow: 0 0 20px rgba(146,92,255,0.1);
+    }
+
+    #messageInput {
+      flex: 1;
+      min-width: 0;
+      max-height: 140px;
+      resize: none;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: white;
+      padding: 9px 5px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    #messageInput::placeholder {
+      color: #77778f;
+    }
+
+    .send-button {
+      width: 40px;
+      height: 40px;
+      min-width: 40px;
+      border: none;
+      border-radius: 11px;
+      background: linear-gradient(135deg, #925cff, #397cff);
+      color: white;
+      font-size: 19px;
+      transition: 0.2s;
+    }
+
+    .send-button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(146,92,255,0.4);
+    }
+
+    .send-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .disclaimer {
+      text-align: center;
+      color: #65657d;
+      font-size: 10px;
+      margin-top: 11px;
+    }
+
+    /* MOBİL */
+
+    .overlay {
+      display: none;
+    }
+
+    @media (max-width: 700px) {
+      .sidebar {
+        position: fixed;
+        left: -280px;
+        top: 0;
+        bottom: 0;
+        transition: left 0.25s;
+      }
+
+      .sidebar.open {
+        left: 0;
+      }
+
+      .overlay.show {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.65);
+        z-index: 5;
+      }
+
+      .mobile-menu {
+        display: block;
+      }
+
+      .topbar {
+        padding: 0 15px;
+      }
+
+      .chat-area {
+        padding: 20px 14px;
+      }
+
+      .input-section {
+        padding: 10px 12px 15px;
+      }
+
+      .suggestions {
+        grid-template-columns: 1fr;
+      }
+
+      .welcome {
+        padding: 20px 5px;
+      }
+
+      .message-body {
+        max-width: 88%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <div class="overlay" id="overlay"></div>
+
+  <aside class="sidebar" id="sidebar">
+
+    <div class="logo">
+      <div class="logo-icon">D</div>
+      <div class="logo-name">DEEP <span>AI</span></div>
+   
